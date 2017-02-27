@@ -14,7 +14,7 @@
 #include <netdb.h>
 #include <iostream>
 
-//#define MYPORT "10168"	// the port users will be connecting to
+#define MYPORT "10168"	// the port users will be connecting to
 
 #define MAXBUFLEN 100
 
@@ -23,7 +23,7 @@ using namespace std;
 typedef struct{
     int8_t TML;
     int8_t heartRate;
-    int8_t location;
+    int16_t location;
     int8_t oxygenLevel;
 }Packets;
 

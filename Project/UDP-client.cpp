@@ -13,7 +13,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <iostream>
-#include <time.h>
+
 
 #define SERVERPORT "10168"	// the port users will be connecting to
 
@@ -80,9 +80,12 @@ int main(int argc, char *argv[])
     while(moreOps == true) {
 	Packets* newPacket = new Packets();
 //	string option;
-    newPacket->heartRate = 100;
+    newPacket->heartRate = rand() % (251);
+    if(newPacket->heartRate < 0) {
+        newPacket->heartRate = abs(newPacket->heartRate);
+    }
     newPacket->location = 55;
-    newPacket->oxygenLevel = 9;
+    newPacket->oxygenLevel = rand() % 101;
     //newPacket->operand1 = htons(newPacket->operand1);
     newPacket->TML = sizeof(newPacket->TML) + sizeof(newPacket->heartRate) + sizeof(newPacket->location)
                     + sizeof(newPacket->oxygenLevel);
@@ -104,10 +107,6 @@ int main(int argc, char *argv[])
 		perror("recvfrom");
 		exit(1);
 	}
-
-	int32_t results = 0;
-	//results = ((unsigned int)(unsigned char)buf[3] << 24 | (unsigned int)(unsigned char)buf[4] << 16 | (unsigned int)(unsigned char)buf[5] << 8 | (unsigned int)(unsigned char)buf[6]);
-	//cout << "The result is: " << results << endl;
     printf("listener: got packet from %s\n",
 		inet_ntop(their_addr.ss_family,
 			get_in_addr((struct sockaddr *)&their_addr),
