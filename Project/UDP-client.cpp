@@ -112,18 +112,9 @@ int main(int argc, char *argv[])
 		inet_ntop(their_addr.ss_family,
 			get_in_addr((struct sockaddr *)&their_addr),
 			s, sizeof s));
-	printf("listener: packet is %d bytes long\n", numbytes);
+	printf("\nlistener: packet is %d bytes long\n", numbytes);
 	buf[numbytes] = '\0';
 	printf("listener: packet contains \"%s\"\n", buf);
-    string exit;
-	cout << endl << "Are we quitting now? yes or no? ";
-	cin >> exit;
-	if(exit.compare("yes") == 0) {
-        moreOps = false;
-	}
-	else {
-        moreOps == true;
-	}
     }
 	freeaddrinfo(servinfo);
 	close(sockfd);

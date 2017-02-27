@@ -14,7 +14,7 @@
 #include <netdb.h>
 #include <iostream>
 
-#define MYPORT "10168"	// the port users will be connecting to
+//#define MYPORT "10168"	// the port users will be connecting to
 
 #define MAXBUFLEN 100
 
@@ -115,7 +115,7 @@ while(1) {
     answer->result = ntohs(answer->result);
 	answer->TML = sizeof(answer->TML) + sizeof(answer->oxygenLevel) + sizeof(answer->heartRate) + sizeof(answer->result) + sizeof(answer->location);
 
-	printf("listener: got packet from %s\n",
+	printf("\nlistener: got packet from %s\n",
 		inet_ntop(their_addr.ss_family,
 			get_in_addr((struct sockaddr *)&their_addr),
 			s, sizeof s));
