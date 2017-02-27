@@ -14,7 +14,7 @@
 #include <netdb.h>
 #include <iostream>
 
-#define MYPORT "10012"	// the port users will be connecting to
+#define MYPORT "10168"	// the port users will be connecting to
 
 #define MAXBUFLEN 100
 
@@ -22,17 +22,16 @@ using namespace std;
 
 typedef struct{
     int8_t TML;
-    int8_t requestID;
-    int8_t opCode;
-    int8_t numOperands;
-    int16_t operand1;
-    int16_t operand2;
+    int8_t heartRate;
+    int8_t location;
+    int8_t oxygenLevel;
 }Packets;
 
 typedef struct{
     int8_t TML;
-    int8_t requestID;
-    int8_t errorCode;
+    int8_t heartRate;
+    int8_t location;
+    int8_t oxygenLevel;
     int32_t result;
 }Return;
 
@@ -90,6 +89,7 @@ int main(void)
 	}
 
 	freeaddrinfo(servinfo);
+
 while(1) {
 	printf("listener: waiting to recvfrom...\n");
 
@@ -99,55 +99,21 @@ while(1) {
 		perror("recvfrom");
 		exit(1);
 	}
-	for(int i = 0; i < 8; i++) {
+
+	for(int i = 0; i < 4; i++) {
         buf[i] = int8_t(buf[i]);
-        //cout << endl << int(buf[i]);
+        cout << endl << int(buf[i]);
 	}
     Packets* receiver = new Packets();
     receiver->TML = buf[0];
-    receiver->requestID = buf[1];
-    receiver->opCode = buf[2];
-    receiver->numOperands = buf[3];
-    receiver->operand1 = ((unsigned int)(unsigned char)buf[4] << 8 | (unsigned int)(unsigned char)buf[5]);
-    receiver->operand2 = ((unsigned int)(unsigned char)buf[6] << 8 | (unsigned int)(unsigned char)buf[7]);
+    receiver->heartRate = buf[1];
+    receiver->location = buf[2];
+    receiver->oxygenLevel = buf[3];
 
     Return* answer = new Return();
-    if(receiver->opCode == 0) {
-	    answer->result = receiver->operand1 + receiver->operand2;
-        answer->errorCode = 0;
-        answer->requestID = receiver->requestID;
-	}
-	else if (receiver->opCode == 1) {
-        answer->result = receiver->operand1 - receiver->operand2;
-        answer->errorCode = 0;
-        answer->requestID = receiver->requestID;
-	}
-	else if (receiver->opCode == 2) {
-            answer->result = receiver->operand1 | receiver->operand2;
-            answer->errorCode = 0;
-            answer->requestID = receiver->requestID;
-	}
-	else if (receiver->opCode == 3) {
-	    answer->result = receiver->operand1 & receiver->operand2;
-	    answer->errorCode = 0;
-        answer->requestID = receiver->requestID;
-	}
-	else if (receiver->opCode == 4) {
-	    answer->result = receiver->operand1 >> receiver->operand2;
-	    answer->errorCode = 0;
-        answer->requestID = receiver->requestID;
-	}
-	else if (receiver->opCode == 5) {
-	    answer->result = receiver->operand1 << receiver->operand2;
-	    answer->errorCode = 0;
-        answer->requestID = receiver->requestID;
-	}
-	else {
-        answer->errorCode = 127;
-        answer->requestID = receiver->requestID;
-	}
+    answer->result = receiver->heartRate;
     answer->result = ntohs(answer->result);
-	answer->TML = sizeof(answer->TML) + sizeof(answer->requestID) + sizeof(answer->errorCode) + sizeof(answer->result);
+	answer->TML = sizeof(answer->TML) + sizeof(answer->oxygenLevel) + sizeof(answer->heartRate) + sizeof(answer->result) + sizeof(answer->location);
 
 	printf("listener: got packet from %s\n",
 		inet_ntop(their_addr.ss_family,

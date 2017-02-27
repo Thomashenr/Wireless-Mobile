@@ -15,7 +15,7 @@
 #include <iostream>
 #include <time.h>
 
-#define SERVERPORT "10012"	// the port users will be connecting to
+#define SERVERPORT "10168"	// the port users will be connecting to
 
 #define MAXBUFLEN 100
 
@@ -23,11 +23,9 @@ using namespace std;
 
 typedef struct{
     int8_t TML;
-    int8_t requestID;
-    int8_t opCode;
-    int8_t numOperands;
-    int16_t operand1;
-    int16_t operand2;
+    int8_t heartRate;
+    int8_t location;
+    int8_t oxygenLevel;
 }Packets;
 
 // get sockaddr, IPv4 or IPv6:
@@ -78,41 +76,17 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "talker: failed to create socket\n");
 		return 2;
 	}
-    int requestId = 1;
-    int opCode;
     bool moreOps = true;
     while(moreOps == true) {
 	Packets* newPacket = new Packets();
-	newPacket->numOperands = 1;
-	newPacket->requestID = requestId;
-	string option;
-    cout << "Enter an Opcode: (0 = +, 1 = -, 2 = |, 3 = &, 4 = >>, 5 = << : ";
-    cin >> opCode;
-    while (opCode < 0 || opCode > 5) {
-        cout << "Enter an Opcode: (0 = +, 1 = -, 2 = |, 3 = &, 4 = >>, 5 = << : ";
-        cin >> opCode;
-    }
-    newPacket->opCode = opCode;
-    cout << "Please enter Operand 1: ";
-    cin >> newPacket->operand1;
-    newPacket->operand1 = htons(newPacket->operand1);
-    cout << "Do you need a second operand? yes or no? ";
-    cin >> option;
-    if (option.compare("yes") == 0) {
-    cout << "Please enter Operand 2: ";
-    cin >> newPacket->operand2;
-    newPacket->operand2 = htons(newPacket->operand2);
-    newPacket->numOperands = 2;
-    }
-    else if (option.compare("yes") != 0 || option.compare("no") != 0) {
-        exit(1);
-    }
+//	string option;
+    newPacket->heartRate = 100;
+    newPacket->location = 55;
+    newPacket->oxygenLevel = 9;
+    //newPacket->operand1 = htons(newPacket->operand1);
+    newPacket->TML = sizeof(newPacket->TML) + sizeof(newPacket->heartRate) + sizeof(newPacket->location)
+                    + sizeof(newPacket->oxygenLevel);
 
-    newPacket->TML = sizeof(newPacket->TML) + sizeof(newPacket->requestID) + sizeof(newPacket->numOperands)
-                    + sizeof(newPacket->opCode) + sizeof(newPacket->operand1) + sizeof(newPacket->operand2);
-    newPacket->requestID = requestId;
-    struct timespec start, stop;
-		clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 	if ((numbytes = sendto(sockfd, newPacket, newPacket->TML, 0,
 			 p->ai_addr, p->ai_addrlen)) == -1) {
 		perror("talker: sendto");
@@ -130,12 +104,10 @@ int main(int argc, char *argv[])
 		perror("recvfrom");
 		exit(1);
 	}
-	clock_gettime(CLOCK_MONOTONIC_RAW, &stop);
 
 	int32_t results = 0;
-	results = ((unsigned int)(unsigned char)buf[3] << 24 | (unsigned int)(unsigned char)buf[4] << 16 | (unsigned int)(unsigned char)buf[5] << 8 | (unsigned int)(unsigned char)buf[6]);
-	printf("\nThe round trip time for the request was %.5f seconds.\n",((double) stop.tv_sec + 1.0e-9*stop.tv_nsec) - ((double)start.tv_sec + 1.0e-9*start.tv_nsec));
-	cout << "The result is: " << results << endl;
+	//results = ((unsigned int)(unsigned char)buf[3] << 24 | (unsigned int)(unsigned char)buf[4] << 16 | (unsigned int)(unsigned char)buf[5] << 8 | (unsigned int)(unsigned char)buf[6]);
+	//cout << "The result is: " << results << endl;
     printf("listener: got packet from %s\n",
 		inet_ntop(their_addr.ss_family,
 			get_in_addr((struct sockaddr *)&their_addr),
@@ -151,10 +123,8 @@ int main(int argc, char *argv[])
 	}
 	else {
         moreOps == true;
-        requestId++;
 	}
     }
-
 	freeaddrinfo(servinfo);
 	close(sockfd);
 	return 0;
