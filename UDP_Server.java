@@ -1,5 +1,4 @@
-package wireless;
-
+package git;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -17,19 +16,25 @@ import javax.swing.SwingUtilities;
 public class UDP_Server extends JFrame {
 	
 	public static void main(String[] args) throws InterruptedException {
-		   UDP_Server server=new UDP_Server();
-	      server.readyToReceivPacket();
-	   }
+		
+	  UDP_Server server= new UDP_Server();
+	  
+	   //Scanner s = new Scanner(System.in);
+	   //System.out.println("Enter Port# to be used : ");
+	   //String portNum=s.nextLine();
+	   
+	  server.readyToReceivPacket();
+   }
 	
    private final JTextArea msgArea = new JTextArea();
    //Window for Sensor1
-   public JFrame s1=new JFrame("Sensor1");
+   public JFrame s1=new JFrame("Sensor1: Oxgyen Tak Level");
    public JTextArea m1=new JTextArea();
  //Window for Sensor2
-   public JFrame s2=new JFrame("Sensor2");
+   public JFrame s2=new JFrame("Sensor2: Heart Rate");
    public JTextArea m2=new JTextArea();
  //Window for Sensor3
-   public JFrame s3=new JFrame("Sensor3");
+   public JFrame s3=new JFrame("Sensor3: Location");
    public JTextArea m3=new JTextArea();
    
    private DatagramSocket socket;
@@ -66,7 +71,7 @@ public class UDP_Server extends JFrame {
       m3.setEditable(false);
       
       try {
-         socket = new DatagramSocket(12345);
+         socket = new DatagramSocket(10168);
 
       } catch (SocketException ex) {
          System.exit(1);
@@ -87,7 +92,7 @@ public class UDP_Server extends JFrame {
                     + "\nData: "
                     + r_p_client);
             
-          if(packet.getLength()!=10)
+          if(packet.getLength()!=Integer.parseInt(r_p_client.substring(0, 3)))
       	  {
       		  msg="0";
       	//	showMsg("+++++++++++");
@@ -95,39 +100,74 @@ public class UDP_Server extends JFrame {
           else
           {
         	  msg="1";
-        	 // showMsg("----------------"+r_p_client.substring(0, 2));
-        	 //Check which sensor packet it is
-        	  if(r_p_client.substring(0, 2).equals("00"))
+        	  if(r_p_client.contains("T"))
         	  {
-        		  if(r_p_client.contains("$"))
-        		  {
-        		  int z=r_p_client.indexOf("$");
-        		  r_p_client =r_p_client.substring(0, z);
-        		  }
-        		  
-        	      m1.append(r_p_client);
-        		//  showMsg("+++++++++++------------"+r_p_client);
+        		  int y=r_p_client.indexOf("T");
+        		  String level = r_p_client.substring(y);
+        		  m1.append(" "+level);  
         	  }
-        	  else if(r_p_client.substring(0, 2).equals("01"))
+        	  else if(r_p_client.contains("H"))
         	  {
-        		  if(r_p_client.contains("$"))
-        		  {
-        		  int z=r_p_client.indexOf("$");
-        		  r_p_client =r_p_client.substring(0, z);
-        		  }
-        		  m2.append(r_p_client);
-        		//  showMsg("+++++++++++------------"+r_p_client);
+        		  int y=r_p_client.indexOf("H");
+        		  String heartrate = r_p_client.substring(y);
+        		  m2.append(" "+heartrate);
         	  }
         	  else
         	  {
-        		  if(r_p_client.contains("$"))
-        		  {
-        		  int z=r_p_client.indexOf("$");
-        		  r_p_client =r_p_client.substring(0, z);
-        		  }
-        		  m3.append(r_p_client);
-        		//  showMsg("+++++++++++------------"+r_p_client);
+        		  int y=r_p_client.indexOf("L");
+        		  int z=r_p_client.indexOf("N");
+        		  String latitude = r_p_client.substring(y, z);
+            	  String longitude = r_p_client.substring(z);
+        		  m3.append("  "+latitude + " " + longitude);
         	  }
+        	  
+        /*	  int y=r_p_client.indexOf("T");
+        	  int z=r_p_client.indexOf("H");
+        	  String level = r_p_client.substring(y, z);
+        	  y=r_p_client.indexOf("H");
+        	  z=r_p_client.indexOf("L");
+        	  String heartrate = r_p_client.substring(y, z);
+        	  y=r_p_client.indexOf("L");
+        	  z=r_p_client.indexOf("N");
+        	  String latitude = r_p_client.substring(y, z);
+        	  String longitude = r_p_client.substring(z);
+        	  
+        	  m1.append(level);
+        	  m2.append(heartrate);
+        	  m3.append(latitude + " " + longitude);*/
+        	 // showMsg("----------------"+r_p_client.substring(0, 2));
+        	 //Check which sensor packet it is
+        	  //if(r_p_client.substring(0, 2).equals("00"))
+        	  //{
+        		  //if(r_p_client.contains("$"))
+        		  //{
+        		  //int z=r_p_client.indexOf("$");
+        		  //r_p_client =r_p_client.substring(0, z);
+        		  //}
+        		  
+        	      //m1.append(r_p_client);
+        		////  showMsg("+++++++++++------------"+r_p_client);
+        	  //}
+        	  //else if(r_p_client.substring(0, 2).equals("01"))
+        	  //{
+        		  //if(r_p_client.contains("$"))
+        		  //{
+        		  //int z=r_p_client.indexOf("$");
+        		  //r_p_client =r_p_client.substring(0, z);
+        		  //}
+        		  //m2.append(r_p_client);
+        		////  showMsg("+++++++++++------------"+r_p_client);
+        	  //}
+        	  //else
+        	  //{
+        		  //if(r_p_client.contains("$"))
+        		  //{
+        		  //int z=r_p_client.indexOf("$");
+        		  //r_p_client =r_p_client.substring(0, z);
+        		  //}
+        		  //m3.append(r_p_client);
+        		////  showMsg("+++++++++++------------"+r_p_client);
+        	  //}
           }
           //  TimeUnit.SECONDS.sleep(5);
             sendPacket(packet);
@@ -156,10 +196,12 @@ public class UDP_Server extends JFrame {
    }
 
    public void showMsg(final String msg) {
-      SwingUtilities.invokeLater(() -> {
-         msgArea.append(msg);
+      SwingUtilities.invokeLater(new Runnable()
+      {
+		  public void run() {
+				msgArea.append(msg);
+		  }
       });
    }
 
 }
-
